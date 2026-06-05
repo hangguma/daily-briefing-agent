@@ -94,7 +94,7 @@ daily-briefing-agent/
 **[Eunjin Cho]**
 
 - GitHub: [@hangguma](https://github.com/hangguma)
-- LinkedIn: https://linkedin.com/in/eunjincho
+- LinkedIn: [profile](https://linkedin.com/in/eunjincho)
 
 > Built for learning Agentic AI and as a portfolio project.
 
