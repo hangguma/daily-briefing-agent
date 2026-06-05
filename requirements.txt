@@ -1,0 +1,13 @@
+# Daily Briefing Agent 의존성
+# 아래 버전은 Stage 7(Test)에서 실제 설치·실행으로 검증된 조합입니다.
+# 버전을 고정하는 이유: CrewAI는 API 변경(breaking change)이 잦아,
+# 버전을 명시하지 않으면 나중에 코드가 동작하지 않을 수 있습니다. (Stage 1 리스크)
+
+crewai==1.14.6
+anthropic==0.105.2        # CrewAI의 Anthropic provider — 없으면 LLM 초기화 실패
+tavily-python==0.7.25
+python-dotenv==1.2.2
+pydantic==2.12.5
+
+# 개발/테스트용 (실행에는 불필요)
+pytest==8.3.4
