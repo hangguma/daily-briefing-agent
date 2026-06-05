@@ -1,82 +1,91 @@
 # 📰 Daily Briefing Agent
 
-키워드 기반으로 매일의 뉴스를 **자동 수집 → 선별 → 요약**해주는 멀티에이전트 시스템입니다.
-[CrewAI](https://crewai.com)로 구축한 3-에이전트 순차 파이프라인입니다.
+A multi-agent system that automatically **collects → curates → summarizes** daily news based on your keywords.
+Built as a 3-agent sequential pipeline with [CrewAI](https://crewai.com).
 
-## 🎯 무엇을 하나요?
+## 🎯 What It Does
 
 ```
-관심 키워드 입력  →  뉴스 자동 수집  →  중복 제거·중요도 평가  →  마크다운 브리핑 생성
+Enter keywords  →  Auto-collect news  →  Dedupe & rank by importance  →  Generate Markdown briefing
 ```
 
-세 개의 전문화된 에이전트가 협업합니다:
+Three specialized agents collaborate:
 
-| 에이전트 | 역할 | 도구 |
+| Agent | Role | Tool |
 |---|---|---|
-| **Collector** | 키워드로 최신 뉴스 검색·수집 | Tavily Search |
-| **Ranker** | 중복 제거 + 중요도 점수화 | (LLM 판단) |
-| **Writer** | 3줄 요약 + 마크다운 브리핑 작성 | (LLM 작성) |
+| **Collector** | Searches & collects latest news by keyword | Tavily Search |
+| **Ranker** | Removes duplicates + scores importance | (LLM reasoning) |
+| **Writer** | 3-line summaries + Markdown briefing | (LLM writing) |
 
-## 🏗️ 아키텍처
+## 🏗️ Architecture
 
 ```
-사용자 키워드
+User keywords
     ↓
-[Collector] ──(Tavily)──> 원문 기사 목록
+[Collector] ──(Tavily)──> Raw article list
     ↓
-[Ranker] ──────────────> 점수 정렬 상위 N건
+[Ranker] ──────────────> Top-N ranked articles
     ↓
-[Writer] ──(Claude)────> 마크다운 브리핑 (.md)
+[Writer] ──(Claude)────> Markdown briefing (.md)
 ```
 
-설계 원칙: **단일 책임** · **명확한 I/O 계약(Pydantic)** · **관찰 가능성(verbose)** · **graceful degradation(검색 실패 시 재시도)**
+Design principles: **single responsibility** · **explicit I/O contracts (Pydantic)** · **observability (verbose)** · **graceful degradation (retry on search failure)**
 
-## 🚀 실행 방법
+## 🚀 Getting Started
 
 ```bash
-# 1. 의존성 설치
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. API 키 설정
+# 2. Configure API keys
 cp .env.example .env
-# .env 파일을 열어 ANTHROPIC_API_KEY, TAVILY_API_KEY 입력
+# Open .env and set ANTHROPIC_API_KEY and TAVILY_API_KEY
 
-# 3. 실행
+# 3. Run
 python main.py
 
-# 또는 직접 키워드 지정
+# Or specify keywords directly
 python main.py --keywords "agentic AI" "RAG" "vector database"
 ```
 
-결과는 `outputs/briefing_YYYY-MM-DD.md`에 저장됩니다.
+Output is saved to `outputs/briefing_YYYY-MM-DD.md`.
 
-## 📁 프로젝트 구조
+## 🧪 Testing
+
+```bash
+pytest -v
+```
+
+Unit tests run without real API keys — external APIs are mocked. CI runs the full suite on every push via GitHub Actions.
+
+## 📁 Project Structure
 
 ```
 daily-briefing-agent/
-├── agents/        # 에이전트 정의 (역할·목표·백스토리)
-├── tasks/         # 작업 정의 (무엇을 할지)
-├── tools/         # 외부 도구 래퍼 (Tavily 검색)
-├── models/        # 데이터 모델 (Pydantic 스키마)
-├── config/        # 설정·환경변수
-├── crew.py        # 에이전트 시스템 조립 (재사용 가능한 핵심)
-└── main.py        # CLI 진입점
+├── agents/        # Agent definitions (role, goal, backstory)
+├── tasks/         # Task definitions (what to do)
+├── tools/         # External tool wrappers (Tavily search)
+├── models/        # Data models (Pydantic schemas)
+├── config/        # Settings & environment variables
+├── tests/         # Unit tests
+├── crew.py        # Agent system assembly (reusable core)
+└── main.py        # CLI entry point
 ```
 
-## 🛣️ 로드맵
+## 🛣️ Roadmap
 
-- [x] **Phase 1** — 로컬 CLI 버전
-- [ ] **Phase 2** — Streamlit 웹 UI (`crew.py` 재사용, `main.py` → `app.py`)
-- [ ] **Phase 3** — 스케줄러(cron) + Slack/이메일 자동 발송
+- [x] **Phase 1** — Local CLI version
+- [ ] **Phase 2** — Streamlit web UI (reuses `crew.py`, `main.py` → `app.py`)
+- [ ] **Phase 3** — Scheduler (cron) + Slack/email auto-delivery
 
-## 🧰 기술 선택 노트
+## 🧰 Tech Decision Notes
 
-> **CrewAI를 선택한 이유**: 역할 기반 멀티에이전트 협업에 직관적이고
-> 빠른 프로토타이핑에 최적. 단순 순차 워크플로우라 디버깅도 쉬움.
-> 향후 프로덕션급 상태 관리·조건 분기가 필요해지면 **LangGraph**로
-> 마이그레이션 예정 (업계 표준 학습 경로).
+> **Why CrewAI?** Intuitive for role-based multi-agent collaboration and ideal
+> for rapid prototyping. The simple sequential workflow keeps debugging easy.
+> Once production-grade state management and conditional branching are needed,
+> migration to **LangGraph** is planned (a common industry learning path).
 
-## 📦 기술 스택
+## 📦 Tech Stack
 
 `Python` · `CrewAI` · `Claude API` · `Tavily` · `Pydantic`
 
@@ -85,11 +94,10 @@ daily-briefing-agent/
 **[Eunjin Cho]**
 
 - GitHub: [@hangguma](https://github.com/hangguma)
-- LinkedIn: [프로필 링크](https://linkedin.com/in/eunjincho)
+- LinkedIn: https://linkedin.com/in/eunjincho
 
-> 이 프로젝트는 Agentic AI 학습 및 포트폴리오 목적으로 제작되었습니다.
+> Built for learning Agentic AI and as a portfolio project.
 
 ## 📄 License
 
-이 프로젝트는 MIT License를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참고하세요.
-
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
