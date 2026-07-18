@@ -17,7 +17,7 @@ from config import settings
 from config.logging_setup import setup_logging
 from crew import build_crew
 from notifiers.slack_notifier import send_to_slack
-from observability.agentops_adapter import end_session, start_session
+from observability.langfuse_adapter import end_session, start_session
 
 
 def parse_args() -> list[str]:

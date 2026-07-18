@@ -77,7 +77,7 @@ daily-briefing-agent/
 ## 🛣️ Roadmap
 
 - [x] **Phase 1** — Local CLI version
-- [x] **Phase 2** — Streamlit web UI (reuses `crew.py`; `app.py` entry point) + RSS multi-source + Slack delivery + AgentOps observability
+- [x] **Phase 2** — Streamlit web UI (reuses `crew.py`; `app.py` entry point) + RSS multi-source + Slack delivery + Langfuse observability
 - [ ] **Phase 3** — Scheduler (cron) auto-delivery
 
 ## 🧰 Tech Decision Notes

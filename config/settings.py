@@ -25,11 +25,15 @@ SLACK_WEBHOOK_URL: str = os.getenv("SLACK_WEBHOOK_URL", "")
 # When True, the briefing is pushed to Slack after generation.
 SLACK_ENABLED: bool = os.getenv("SLACK_ENABLED", "false").lower() == "true"
 
-# -- AgentOps (Phase 2: observability adapter) ----------------
-# Dashboard + data-flow tracing for the crew. Get a key at app.agentops.ai.
-AGENTOPS_API_KEY: str = os.getenv("AGENTOPS_API_KEY", "")
-# When True (and key set), the run is traced to the AgentOps dashboard.
-AGENTOPS_ENABLED: bool = os.getenv("AGENTOPS_ENABLED", "false").lower() == "true"
+# -- Langfuse (Phase 2: observability adapter) ----------------
+# Dashboard + span tracing for the crew (OpenTelemetry-based).
+# Replaced AgentOps 2026-07-17: its span export failed silently (empty
+# dashboard, no error). Keys at https://cloud.langfuse.com (free tier).
+LANGFUSE_PUBLIC_KEY: str = os.getenv("LANGFUSE_PUBLIC_KEY", "")
+LANGFUSE_SECRET_KEY: str = os.getenv("LANGFUSE_SECRET_KEY", "")
+LANGFUSE_HOST: str = os.getenv("LANGFUSE_HOST", "https://us.cloud.langfuse.com")
+# When True (and keys set + auth verified), runs are traced to the dashboard.
+LANGFUSE_ENABLED: bool = os.getenv("LANGFUSE_ENABLED", "false").lower() == "true"
 
 # -- LLM config -----------------------------------------------
 # CrewAI uses LiteLLM under the hood, hence the "anthropic/<model>" format.

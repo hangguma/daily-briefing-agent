@@ -8,7 +8,9 @@ tavily-python==0.7.25
 feedparser==6.0.12        # [Phase 2] RSS source adapter
 requests>=2.32            # [Phase 2] Slack webhook POST (also a crewai dep)
 streamlit==1.58.0         # [Phase 2] web UI entry point (app.py)
-agentops==0.4.21         # [Phase 2] observability dashboard + tracing
+langfuse==4.14.0          # [Phase 2] observability dashboard + tracing (replaced agentops - silent export failure)
+openinference-instrumentation-crewai==1.1.10   # CrewAI span instrumentation for Langfuse (OTel)
+openinference-instrumentation-litellm==0.1.34  # LiteLLM/LLM-call spans for Langfuse (OTel)
 python-dotenv==1.2.2      # matched to crewai's requirement (>=1.2.2,<2)
 pydantic==2.12.5
 
