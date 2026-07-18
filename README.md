@@ -1,5 +1,7 @@
 # 📰 Daily Briefing Agent
 
+[![CI](https://github.com/hangguma/daily-briefing-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/hangguma/daily-briefing-agent/actions/workflows/ci.yml)
+
 A multi-agent system that automatically **collects → curates → summarizes** daily news based on your keywords.
 Built as a 3-agent sequential pipeline with [CrewAI](https://crewai.com).
 
@@ -13,7 +15,7 @@ Three specialized agents collaborate:
 
 | Agent | Role | Tool |
 |---|---|---|
-| **Collector** | Searches & collects latest news by keyword | Tavily Search |
+| **Collector** | Searches & collects latest news by keyword | Tavily Search + RSS feeds |
 | **Ranker** | Removes duplicates + scores importance | (LLM reasoning) |
 | **Writer** | 3-line summaries + Markdown briefing | (LLM writing) |
 
@@ -22,11 +24,11 @@ Three specialized agents collaborate:
 ```
 User keywords
     ↓
-[Collector] ──(Tavily)──> Raw article list
+[Collector] ──(Tavily + RSS)──> Raw article list
     ↓
-[Ranker] ──────────────> Top-N ranked articles
+[Ranker] ────────────────────> Top-N ranked articles
     ↓
-[Writer] ──(Claude)────> Markdown briefing (.md)
+[Writer] ──(Claude)──────────> Markdown briefing (.md) ──> Slack (optional)
 ```
 
 Design principles: **single responsibility** · **explicit I/O contracts (Pydantic)** · **observability (verbose)** · **graceful degradation (retry on search failure)**
@@ -75,8 +77,8 @@ daily-briefing-agent/
 ## 🛣️ Roadmap
 
 - [x] **Phase 1** — Local CLI version
-- [ ] **Phase 2** — Streamlit web UI (reuses `crew.py`, `main.py` → `app.py`)
-- [ ] **Phase 3** — Scheduler (cron) + Slack/email auto-delivery
+- [x] **Phase 2** — Streamlit web UI (reuses `crew.py`; `app.py` entry point) + RSS multi-source + Slack delivery + AgentOps observability
+- [ ] **Phase 3** — Scheduler (cron) auto-delivery
 
 ## 🧰 Tech Decision Notes
 
@@ -88,15 +90,6 @@ daily-briefing-agent/
 ## 📦 Tech Stack
 
 `Python` · `CrewAI` · `Claude API` · `Tavily` · `Pydantic`
-
-## 👤 Author
-
-**[Eunjin Cho]**
-
-- GitHub: [@hangguma](https://github.com/hangguma)
-- LinkedIn: [profile](https://linkedin.com/in/eunjincho)
-
-> Built for learning Agentic AI and as a portfolio project.
 
 ## 📄 License
 

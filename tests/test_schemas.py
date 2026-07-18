@@ -1,8 +1,8 @@
 """
-데이터 모델(I/O 계약) 단위 테스트.
+Unit tests for the data models (I/O contracts).
 
-API 호출이 전혀 없으므로 어떤 환경에서도 실행 가능합니다.
-계약이 "잘못된 데이터를 실제로 거부하는지"를 검증합니다.
+No API calls, so these run in any environment.
+They verify the contracts actually REJECT invalid data.
 """
 
 import pytest
@@ -17,20 +17,20 @@ from models.schemas import (
 )
 
 
-def test_article_정상_생성():
-    a = Article(title="제목", url="https://x.com", snippet="요약", keyword="AI")
-    assert a.title == "제목"
+def test_article_creates_ok():
+    a = Article(title="Title", url="https://x.com", snippet="summary", keyword="AI")
+    assert a.title == "Title"
     assert a.keyword == "AI"
 
 
-def test_article_필수필드_누락시_에러():
-    # url을 빠뜨리면 검증 실패해야 함 (계약 강제)
+def test_article_missing_required_field_errors():
+    # Omitting url must fail validation (contract enforcement)
     with pytest.raises(ValidationError):
-        Article(title="제목", snippet="요약", keyword="AI")
+        Article(title="Title", snippet="summary", keyword="AI")
 
 
-def test_ranked_article_점수_범위_검증():
-    # score는 0~1 범위. 범위를 벗어나면 거부되어야 함.
+def test_ranked_article_score_range():
+    # score must be within 0-1; out-of-range must be rejected
     ok = RankedArticle(
         title="t", url="https://x.com", snippet="s", keyword="k", score=0.8
     )
@@ -46,12 +46,12 @@ def test_ranked_article_점수_범위_검증():
         )
 
 
-def test_ranked_article_는_article_상속():
-    # 상속 구조 검증 — RankedArticle은 Article의 필드를 모두 가짐
+def test_ranked_article_inherits_article():
+    # Inheritance check - RankedArticle has all Article fields
     assert issubclass(RankedArticle, Article)
 
 
-def test_article_list_래퍼():
+def test_article_list_wrapper():
     lst = ArticleList(
         articles=[
             Article(title="t1", url="https://a.com", snippet="s", keyword="k"),
@@ -61,7 +61,7 @@ def test_article_list_래퍼():
     assert len(lst.articles) == 2
 
 
-def test_ranked_list_래퍼():
+def test_ranked_list_wrapper():
     lst = RankedArticleList(
         articles=[
             RankedArticle(
@@ -73,11 +73,11 @@ def test_ranked_list_래퍼():
     assert lst.articles[0].score == 0.9
 
 
-def test_briefing_report_정상_생성():
+def test_briefing_report_creates_ok():
     report = BriefingReport(
         date="2026-06-04",
         keywords=["AI", "agents"],
-        markdown="# 브리핑\n내용",
+        markdown="# Briefing\nbody",
     )
     assert report.date == "2026-06-04"
-    assert "브리핑" in report.markdown
+    assert "Briefing" in report.markdown

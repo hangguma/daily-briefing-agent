@@ -9,4 +9,11 @@ venv/
 
 # 생성물 (선택적으로 커밋 — 데모용으로는 1개 남겨두면 좋음)
 outputs/*.md
+outputs/logs/
 !outputs/.gitkeep
+
+# macOS
+.DS_Store
+
+# 로컬 관측 로그 (AgentOps SDK가 남김)
+agentops.log

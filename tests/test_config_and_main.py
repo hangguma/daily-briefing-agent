@@ -1,5 +1,5 @@
 """
-설정 검증 및 main.py 헬퍼 함수 테스트.
+Tests for settings validation and main.py helper functions.
 """
 
 from unittest.mock import patch
@@ -9,8 +9,8 @@ import pytest
 from config import settings
 
 
-def test_validate_키없으면_에러():
-    # 두 키 모두 비어있으면 ValueError, 메시지에 키 이름 포함
+def test_validate_errors_when_no_keys():
+    # Both keys empty -> ValueError mentioning both key names
     with patch.object(settings, "ANTHROPIC_API_KEY", ""), \
          patch.object(settings, "TAVILY_API_KEY", ""):
         with pytest.raises(ValueError) as exc:
@@ -19,15 +19,15 @@ def test_validate_키없으면_에러():
         assert "TAVILY_API_KEY" in str(exc.value)
 
 
-def test_validate_키있으면_통과():
+def test_validate_passes_with_keys():
     with patch.object(settings, "ANTHROPIC_API_KEY", "sk-ant-xxx"), \
          patch.object(settings, "TAVILY_API_KEY", "tvly-xxx"):
-        # 예외가 발생하지 않아야 함
+        # Must not raise
         settings.validate()
 
 
-def test_validate_일부키만_있으면_에러():
-    # ANTHROPIC만 있고 TAVILY 없으면 → TAVILY만 에러 메시지에
+def test_validate_errors_when_partial_keys():
+    # ANTHROPIC present, TAVILY missing -> only TAVILY in the message
     with patch.object(settings, "ANTHROPIC_API_KEY", "sk-ant-xxx"), \
          patch.object(settings, "TAVILY_API_KEY", ""):
         with pytest.raises(ValueError) as exc:
@@ -36,20 +36,20 @@ def test_validate_일부키만_있으면_에러():
         assert "ANTHROPIC_API_KEY" not in str(exc.value)
 
 
-def test_save_report_파일_생성(tmp_path):
-    # main.save_report가 .md 파일을 만들고 내용을 쓰는지 검증
+def test_save_report_creates_file(tmp_path):
+    # main.save_report should create a .md file and write its content
     import main
 
     with patch.object(settings, "OUTPUT_DIR", str(tmp_path)):
-        path = main.save_report("# 테스트 브리핑")
+        path = main.save_report("# Test briefing")
 
     assert path.endswith(".md")
     with open(path, encoding="utf-8") as f:
-        assert "테스트 브리핑" in f.read()
+        assert "Test briefing" in f.read()
 
 
-def test_parse_args_기본_키워드():
-    # 인자 없이 실행하면 기본 키워드 사용
+def test_parse_args_default_keywords():
+    # No args -> use default keywords
     import main
 
     with patch("sys.argv", ["main.py"]):
@@ -57,11 +57,36 @@ def test_parse_args_기본_키워드():
     assert kws == settings.DEFAULT_KEYWORDS
 
 
-def test_parse_args_최대_5개로_제한():
-    # 키워드 7개를 줘도 5개로 잘림 (비용/안정성 보호)
+def test_parse_args_caps_at_5():
+    # 7 keywords -> capped at 5 (cost/stability guardrail)
     import main
 
     args = ["main.py", "--keywords", "a", "b", "c", "d", "e", "f", "g"]
     with patch("sys.argv", args):
         kws = main.parse_args()
     assert len(kws) == 5
+
+
+def test_parse_args_accepts_korean_and_english():
+    # Keywords may be Korean, English, or mixed (incl. spaces in quotes)
+    import main
+
+    args = ["main.py", "--keywords", "인공지능", "AI startup", "machine learning"]
+    with patch("sys.argv", args):
+        kws = main.parse_args()
+    assert kws == ["인공지능", "AI startup", "machine learning"]
+
+
+def test_search_conditions_footer_includes_all():
+    # Footer must include keywords + all search settings
+    import main
+
+    footer = main.format_search_conditions(["AI", "agents"])
+    assert "Search conditions" in footer
+    assert "`AI`" in footer and "`agents`" in footer
+    assert str(settings.RESULTS_PER_KEYWORD) in footer
+    assert str(settings.TOP_N_ARTICLES) in footer
+    assert str(settings.SEARCH_DAYS) in footer
+    assert settings.SEARCH_TOPIC in footer
+    assert settings.SEARCH_DEPTH in footer
+    assert settings.LLM_MODEL in footer
